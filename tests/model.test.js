@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {initialState,addProduct,editProduct,changeStock,archiveProduct,addToShopping,purchaseShopping,removeShopping,shortage,suggestedPurchase,expiryStatus,exportBackup,importBackup,csvProducts,addCategoryOrLocation,setShoppingQuantity} from '../model.js';
+const draft={name:'洗濯洗剤',category:'洗濯・掃除',location:'洗面所',unit:'袋',quantity:3,minStock:2,targetStock:5,expiry:'',price:298,notes:''};
+test('登録・初期数量と履歴',()=>{const s=addProduct(initialState(),draft);assert.equal(s.products.length,1);assert.equal(s.products[0].quantity,3);assert.equal(s.events[0].type,'初期登録');});
+test('数量増減・マイナス防止・不変性',()=>{const s=addProduct(initialState(),draft),id=s.products[0].id;const changed=changeStock(s,id,-2,'使用');assert.equal(changed.products[0].quantity,1);assert.equal(s.products[0].quantity,3);assert.equal(changed.events[0].delta,-2);assert.throws(()=>changeStock(changed,id,-2));});
+test('在庫不足と補充推奨',()=>{const p={quantity:1,minStock:2,targetStock:5};assert.equal(shortage(p),true);assert.equal(suggestedPurchase(p),4);assert.equal(shortage({...p,quantity:2}),false);});
+test('同じ商品は買い物リストで統合、購入時に二重計上しない',()=>{let s=addProduct(initialState(),draft),id=s.products[0].id;s=addToShopping(s,id,2);s=addToShopping(s,id,3);assert.equal(s.shopping.length,1);assert.equal(s.shopping[0].quantity,5);const shoppingId=s.shopping[0].id;s=purchaseShopping(s,shoppingId);assert.equal(s.products[0].quantity,8);assert.equal(s.shopping.length,0);assert.throws(()=>purchaseShopping(s,shoppingId));});
+test('買い物数量の修正・削除',()=>{let s=addProduct(initialState(),draft),id=s.products[0].id;s=addToShopping(s,id,2);const itemId=s.shopping[0].id;s=setShoppingQuantity(s,itemId,4);assert.equal(s.shopping[0].quantity,4);s=removeShopping(s,itemId);assert.equal(s.shopping.length,0);});
+test('商品編集後も在庫数量が保持される',()=>{let s=addProduct(initialState(),draft),id=s.products[0].id;s=editProduct(s,id,{...draft,name:'新しい洗剤',quantity:500});assert.equal(s.products[0].quantity,3);assert.equal(s.products[0].name,'新しい洗剤');});
+test('期限切れと期限間近',()=>{const date=new Date(2026,10,10);assert.equal(expiryStatus({expiry:'2026-11-09',quantity:1},date,7),'expired');assert.equal(expiryStatus({expiry:'2026-11-15',quantity:1},date,7),'soon');assert.equal(expiryStatus({expiry:'2026-12-15',quantity:1},date,7),'none');assert.equal(expiryStatus({expiry:'2026-11-09',quantity:0},date,7),'none');});
+test('JSONバックアップ往復・カテゴリ追加',()=>{let s=addProduct(initialState(),draft);s=addCategoryOrLocation(s,'categories','ペット用品');const back=importBackup(exportBackup(s));assert.equal(back.products[0].name,'洗濯洗剤');assert.ok(back.categories.includes('ペット用品'));});
+test('不正バックアップは拒否',()=>{assert.throws(()=>importBackup('{"foo":1}'));assert.throws(()=>importBackup('{'));});
+test('アーカイブ時も在庫履歴が残る',()=>{let s=addProduct(initialState(),draft),id=s.products[0].id;s=archiveProduct(s,id);assert.equal(s.products[0].archived,true);assert.equal(s.events.length,1);});
+test('CSVで数式インジェクションを抑止',()=>{const s=addProduct(initialState(),{...draft,name:'=HYPERLINK("bad")'});const csv=csvProducts(s);assert.match(csv,/"'=HYPERLINK/);assert.match(csv,/洗濯・掃除/);});
+test('最低在庫と目標在庫の逆転を拒否',()=>{assert.throws(()=>addProduct(initialState(),{...draft,minStock:10,targetStock:2}));});

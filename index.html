@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f8faf7">
+  <meta name="description" content="食品も日用品も、わが家のストックを見える化。買い忘れと二重買いを減らす家庭用品在庫管理アプリ。">
+  <title>くらしストック | 家庭用品在庫管理</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="メインメニュー">
+      <div class="brand"><div class="brand-logo" aria-hidden="true">▤</div><div><strong>くらしストック</strong><small>わが家の在庫ノート</small></div></div>
+      <nav id="side-nav" class="nav-list"></nav>
+      <div class="sidebar-tip"><span>✦</span><p>買い忘れをなくして、<br>暮らしをすっきり。</p><small>データはこの端末に保存されます。</small></div>
+      <div class="sidebar-footer">Kurashi Stock <span>v1.0.0</span></div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="mobile-logo"><span class="brand-logo">▤</span><strong>くらしストック</strong></div>
+        <div class="topbar-right"><span class="privacy-mark">● オフラインで使える</span><span id="today-label"></span></div>
+      </header>
+      <main id="app" class="content" tabindex="-1"></main>
+      <footer class="footer">© くらしストック · 家庭用品を、ちょうどよく。</footer>
+    </div>
+    <nav id="bottom-nav" class="bottom-nav" aria-label="スマホ用メニュー"></nav>
+  </div>
+  <dialog id="modal" class="modal" aria-label="入力フォーム"><div id="modal-body"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="backup-file" accept=".json,application/json" hidden>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "kurashi-stock",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "家庭用品の在庫と買い物を管理するオフライン対応Webアプリ",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "test": "node --test tests/*.test.js"
+  },
+  "license": "MIT"
+}

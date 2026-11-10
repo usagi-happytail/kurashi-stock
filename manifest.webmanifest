@@ -1,0 +1,14 @@
+{
+  "name": "くらしストック - 家庭用品在庫管理",
+  "short_name": "くらしストック",
+  "description": "家にある食品・日用品・備蓄品の在庫、期限、買い物を管理",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8faf7",
+  "theme_color": "#197d72",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
+  ]
+}
